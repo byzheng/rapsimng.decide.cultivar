@@ -1,0 +1,19 @@
+Package: rapsimng.decide.cultivar
+Title: Analyse APSIM Next Generation Simulation Outputs for Cultivar Comparison
+Version: 0.1.0
+Authors@R: 
+    person("Bangou", "Zheng", , "zheng.bangyou@gmail.com", role = c("aut", "cre"))
+Description: Provides functions to analyse APSIM Next Generation simulation outputs to support cultivar-level comparison under specified environments and management assumptions. The package focuses on transparent, reproducible summarisation of model outputs such as yield, phenology timing, and stress exposure, without performing APSIM simulations, interpreting user intent, or making normative recommendations.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends: R (>= 4.1.0)
+Imports:
+    settings
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+URL: https://rapsimng.decide.cultivar.bangyou.me/,
+    https://github.com/byzheng/rapsimng.decide.cultivar
+BugReports: https://github.com/byzheng/rapsimng.decide.cultivar/issues
