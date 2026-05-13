@@ -7,13 +7,11 @@ Description: Provides functions to analyse APSIM Next Generation simulation outp
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Depends: R (>= 4.1.0)
-Imports:
-    settings
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-URL: https://rapsimng.decide.cultivar.bangyou.me/,
+URL: https://cultivar.decide.rapsimng.bangyou.me/,
     https://github.com/byzheng/rapsimng.decide.cultivar
 BugReports: https://github.com/byzheng/rapsimng.decide.cultivar/issues
+Config/roxygen2/version: 8.0.0
