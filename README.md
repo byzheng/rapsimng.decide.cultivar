@@ -13,14 +13,10 @@ workflows, and AI-mediated interfaces such as `agrillm`.
 
 
 ## Scope
+
 - APSIM **Next Generation only**
 - Cultivar-level comparison based on simulated outputs
-- Deterministic, reproducible analysis (no optimisation, no AI)
-
-## Not in scope
-- User intent interpretation (handled by `agrillm`)
-- APSIM file manipulation or execution (handled by `rapsimng`)
-- Normative recommendations or economic optimisation
+- Deterministic, reproducible analysis
 
 
 ## Installation
