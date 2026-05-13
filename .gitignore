@@ -6,7 +6,7 @@
 test.R
 Meta
 docs
-inst/doc
+inst
 cran-comments.md
 CRAN-RELEASE
 CRAN-SUBMISSION
