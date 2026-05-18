@@ -15,17 +15,17 @@
         ) |>
         dplyr::group_by(.data[[state$columns$cultivar]]) |>
         dplyr::summarise(
-            yield_mean = mean(yield, na.rm = TRUE),
-            yield_sd = sd(yield, na.rm = TRUE),
-			yield_cv = ifelse(yield_mean != 0, yield_sd / yield_mean, NA_real_),
-			yield_risk = sum(yield < state$criteria$failure$yield_threshold, na.rm = TRUE) / sum(!is.na(yield)),
-            yield_q5 = quantile(yield, 0.05, na.rm = TRUE),
-            yield_q10 = quantile(yield, 0.10, na.rm = TRUE),
-			yield_q25 = quantile(yield, 0.25, na.rm = TRUE),
-			yield_median = median(yield, na.rm = TRUE),
-			yield_q75 = quantile(yield, 0.75, na.rm = TRUE),
-			yield_q90 = quantile(yield, 0.90, na.rm = TRUE),
-			yield_q95 = quantile(yield, 0.95, na.rm = TRUE),
+            yield_mean = mean(.data$yield, na.rm = TRUE),
+            yield_sd = stats::sd(.data$yield, na.rm = TRUE),
+			yield_cv = ifelse(.data$yield_mean != 0, .data$yield_sd / .data$yield_mean, NA_real_),
+			yield_risk = sum(.data$yield < state$criteria$failure$yield_threshold, na.rm = TRUE) / sum(!is.na(.data$yield)),
+            yield_q5 = stats::quantile(.data$yield, 0.05, na.rm = TRUE),
+            yield_q10 = stats::quantile(.data$yield, 0.10, na.rm = TRUE),
+			yield_q25 = stats::quantile(.data$yield, 0.25, na.rm = TRUE),
+			yield_median = stats::median(.data$yield, na.rm = TRUE),
+			yield_q75 = stats::quantile(.data$yield, 0.75, na.rm = TRUE),
+			yield_q90 = stats::quantile(.data$yield, 0.90, na.rm = TRUE),
+			yield_q95 = stats::quantile(.data$yield, 0.95, na.rm = TRUE),
             .groups = "drop"
         )
 }

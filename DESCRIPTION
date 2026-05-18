@@ -11,7 +11,8 @@ Depends: R (>= 4.1.0)
 Imports:
     dplyr,
     tibble,
-    rlang
+    rlang,
+    stats
 Config/testthat/edition: 3
 URL: https://cultivar.decide.rapsimng.bangyou.me/,
     https://github.com/byzheng/rapsimng.decide.cultivar
