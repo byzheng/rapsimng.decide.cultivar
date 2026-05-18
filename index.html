@@ -68,33 +68,256 @@
 <div class="section level1">
 <div class="page-header"><h1 id="rapsimngdecidecultivar">rapsimng.decide.cultivar<a class="anchor" aria-label="anchor" href="#rapsimngdecidecultivar"></a>
 </h1></div>
-<p><code>rapsimng.decide.cultivar</code> is an R package for analysing APSIM Next Generation simulation outputs to support cultivar comparison and selection for specific environments, managements, and decision criteria.</p>
-<p>The package does not run APSIM, interpret user intent, or recommend “optimal” choices. Instead, it provides structured, assumption-explicit summaries of model outputs (e.g. yield, phenology timing, stress exposure, stability metrics) that can be used consistently across experimental analysis, decision-support workflows, and AI-mediated interfaces such as <code>agrillm</code>.</p>
-<div class="section level2">
-<h2 id="scope">Scope<a class="anchor" aria-label="anchor" href="#scope"></a>
-</h2>
-<ul>
-<li>APSIM <strong>Next Generation only</strong>
-</li>
-<li>Cultivar-level comparison based on simulated outputs</li>
-<li>Deterministic, reproducible analysis (no optimisation, no AI)</li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="not-in-scope">Not in scope<a class="anchor" aria-label="anchor" href="#not-in-scope"></a>
-</h2>
-<ul>
-<li>User intent interpretation (handled by <code>agrillm</code>)</li>
-<li>APSIM file manipulation or execution (handled by <code>rapsimng</code>)</li>
-<li>Normative recommendations or economic optimisation</li>
-</ul>
-</div>
+<p><code>rapsimng.decide.cultivar</code> provides functions to analyse APSIM Next Generation simulation outputs to support cultivar suitability assessment under defined environments and sowing conditions.</p>
+<p>The package operates on APSIM outputs already loaded into R and focuses on transparent, reproducible evaluation of performance and risk. It does not run APSIM simulations, interpret user intent, or make automatic recommendations.</p>
+<hr>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <p>Currently on <a href="https://github.com/byzheng/rapsimng.decide.cultivar" class="external-link">Github</a> only. Install with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">'byzheng/rapsimng.decide.cultivar'</span><span class="op">)</span></span></code></pre></div>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p>Farmers and advisors often ask:</p>
+<blockquote>
+<p><em>Which cultivar is suitable for my paddock under my sowing window?</em></p>
+</blockquote>
+<p>This package supports that question by analysing long-term APSIM simulations to describe:</p>
+<ul>
+<li>expected yield performance<br>
+</li>
+<li>variability across years<br>
+</li>
+<li>exposure to frost and heat risk<br>
+</li>
+<li>trade-offs between yield and risk</li>
+</ul>
+<p>Instead of returning a single “best” cultivar, the package provides a <strong>decision landscape</strong> that highlights strengths, weaknesses, and uncertainties for each option.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="scope">Scope<a class="anchor" aria-label="anchor" href="#scope"></a>
+</h2>
+<ul>
+<li>APSIM <strong>Next Generation</strong> outputs only<br>
+</li>
+<li>Input: a tidy <code>data.frame</code> of simulation results<br>
+</li>
+<li>Analysis at <strong>cultivar × environment × sowing window</strong> level<br>
+</li>
+<li>Deterministic, reproducible (no optimisation or AI)</li>
+</ul>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="not-in-scope">Not in Scope<a class="anchor" aria-label="anchor" href="#not-in-scope"></a>
+</h2>
+<ul>
+<li>Running or modifying APSIM (<code>rapsimng</code>)</li>
+<li>Interpreting user intent (<code>agrillm</code>)</li>
+<li>Economic optimisation or automatic recommendation</li>
+<li>Black-box ranking or hidden decision rules</li>
+</ul>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="input-data">Input Data<a class="anchor" aria-label="anchor" href="#input-data"></a>
+</h2>
+<p>The package expects a <code>data.frame</code> (or <code>tibble</code>) where each row represents a simulation outcome for:</p>
+<ul>
+<li>cultivar<br>
+</li>
+<li>year<br>
+</li>
+<li>sowing date (or sowing window factor)</li>
+</ul>
+<p>Typical required variables:</p>
+<ul>
+<li>cultivar identifier<br>
+</li>
+<li>year<br>
+</li>
+<li>sowing date<br>
+</li>
+<li>yield<br>
+</li>
+<li>optional: phenology stages, frost/heat indicators</li>
+</ul>
+<p>The data can come from any source (e.g. <code>rapsimng</code>, database export, CSV), as long as structure is consistent.</p>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="decision-context">Decision Context<a class="anchor" aria-label="anchor" href="#decision-context"></a>
+</h2>
+<p>The package assumes a decision context such as:</p>
+<ul>
+<li>fixed location/environment (e.g. Wagga Wagga)<br>
+</li>
+<li>defined sowing window (e.g. 1–15 May)<br>
+</li>
+<li>a set of candidate cultivars<br>
+</li>
+<li>long-term climate variability (e.g. 30 years)</li>
+</ul>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="what-the-package-provides">What the Package Provides<a class="anchor" aria-label="anchor" href="#what-the-package-provides"></a>
+</h2>
+<div class="section level3">
+<h3 id="id_1-yield-performance">1. Yield Performance<a class="anchor" aria-label="anchor" href="#id_1-yield-performance"></a>
+</h3>
+<ul>
+<li>mean / median yield<br>
+</li>
+<li>lower quantile (poor-year performance)<br>
+</li>
+<li>interannual variability</li>
+</ul>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="id_2-risk-assessment-optional">2. Risk Assessment (optional)<a class="anchor" aria-label="anchor" href="#id_2-risk-assessment-optional"></a>
+</h3>
+<ul>
+<li>frost exposure during sensitive stages<br>
+</li>
+<li>heat exposure<br>
+</li>
+<li>failure risk (probability below threshold yield)</li>
+</ul>
+<p>All risk definitions are explicit and stored as metadata.</p>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="id_3-sowing-window-robustness">3. Sowing Window Robustness<a class="anchor" aria-label="anchor" href="#id_3-sowing-window-robustness"></a>
+</h3>
+<ul>
+<li>performance across sowing dates within a window<br>
+</li>
+<li>sensitivity to sowing timing</li>
+</ul>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="id_4-trade-off-analysis">4. Trade-off Analysis<a class="anchor" aria-label="anchor" href="#id_4-trade-off-analysis"></a>
+</h3>
+<p>The package highlights trade-offs such as:</p>
+<ul>
+<li>high yield vs high risk<br>
+</li>
+<li>stable vs variable cultivars<br>
+</li>
+<li>timing-sensitive vs robust cultivars</li>
+</ul>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="outputs">Outputs<a class="anchor" aria-label="anchor" href="#outputs"></a>
+</h2>
+<div class="section level3">
+<h3 id="core-outputs">Core Outputs<a class="anchor" aria-label="anchor" href="#core-outputs"></a>
+</h3>
+<ul>
+<li>cultivar performance summary<br>
+</li>
+<li>risk metrics per cultivar<br>
+</li>
+<li>assumption metadata</li>
+</ul>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="decision-support-outputs">Decision-Support Outputs<a class="anchor" aria-label="anchor" href="#decision-support-outputs"></a>
+</h3>
+<ul>
+<li>filtered candidates meeting criteria<br>
+</li>
+<li>explicit reasons for inclusion/exclusion<br>
+</li>
+<li>trade-off summaries</li>
+</ul>
+<p>Example:</p>
+<blockquote>
+<p>Cultivar A has high mean yield but exceeds frost-risk threshold in 30% of simulated years.<br>
+Cultivar B has lower yield but more stable performance and minimal frost exposure.</p>
+</blockquote>
+<hr>
+</div>
+<div class="section level3">
+<h3 id="visual-outputs-optional">Visual Outputs (optional)<a class="anchor" aria-label="anchor" href="#visual-outputs-optional"></a>
+</h3>
+<ul>
+<li>yield distributions by cultivar<br>
+</li>
+<li>yield vs risk trade-off plots<br>
+</li>
+<li>sowing window performance comparisons</li>
+</ul>
+<hr>
+</div>
+</div>
+<div class="section level2">
+<h2 id="design-philosophy">Design Philosophy<a class="anchor" aria-label="anchor" href="#design-philosophy"></a>
+</h2>
+<p>This package follows three principles:</p>
+<ol style="list-style-type: decimal">
+<li><p><strong>Transparency</strong><br>
+All assumptions, thresholds, and metrics are explicit.</p></li>
+<li><p><strong>Reproducibility</strong><br>
+Same input data always produces the same results.</p></li>
+<li>
+<p><strong>Separation of concerns</strong></p>
+<ul>
+<li>
+<code>rapsimng</code> → APSIM interaction<br>
+</li>
+<li>
+<code>rapsimng.decide.*</code> → decision analysis<br>
+</li>
+<li>
+<code>agrillm</code> → intent and explanation</li>
+</ul>
+</li>
+</ol>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="relationship-to-other-packages">Relationship to Other Packages<a class="anchor" aria-label="anchor" href="#relationship-to-other-packages"></a>
+</h2>
+<ul>
+<li>
+<strong>Depends conceptually on</strong>: <code>rapsimng</code><br>
+</li>
+<li>
+<strong>Independent of</strong>: APSIM runtime<br>
+</li>
+<li>
+<strong>Callable by</strong>: <code>agrillm</code>
+</li>
+</ul>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="key-insight">Key Insight<a class="anchor" aria-label="anchor" href="#key-insight"></a>
+</h2>
+<blockquote>
+<p>This package does not select a cultivar.<br>
+It explains how cultivars perform and trade off under uncertainty.</p>
+</blockquote>
+<hr>
+</div>
+<div class="section level2">
+<h2 id="status">Status<a class="anchor" aria-label="anchor" href="#status"></a>
+</h2>
+<p>Early-stage design focused on: - cultivar suitability under phenology-driven environments<br>
+- extensibility to other decision domains</p>
+<hr>
 </div>
 </div>
   </div>
