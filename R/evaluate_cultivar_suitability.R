@@ -11,25 +11,6 @@
 #'   filtering thresholds.
 #' @param options list controlling output toggles and figure behaviour.
 #' @param ... additional values stored in report metadata for downstream use.
-#'
-#' @return Decision report object with `meta`, `metrics`, `tables`, and
-#'   `figures` components.
-#'
-#' @examples
-#' mock_data <- data.frame(
-#'   cultivar = rep(c("Axe", "Beckom"), each = 6),
-#'   year = rep(rep(2020:2022, each = 2), times = 2),
-#'   sowing_date = rep(as.Date(c("2020-05-01", "2020-05-15")), times = 6),
-#'   yield = c(4.1, 4.3, 3.8, 4.0, 4.5, 4.4, 4.0, 4.1, 3.7, 3.9, 4.2, 4.0),
-#'   frost_events = c(0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0)
-#' )
-#'
-#' report <- evaluate_cultivar_suitability(
-#'   mock_data,
-#'   criteria = list(failure = list(yield_threshold = 3.9))
-#' )
-#'
-#' report$tables$cultivar_summary_table
 #' @export
 evaluate_cultivar_suitability <- function(
 	data,
