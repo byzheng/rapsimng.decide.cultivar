@@ -14,8 +14,6 @@ test_that("document builds and renders from example APSIM output", {
 
     context <- list(
         meta = list(
-            source = system.file("example/cultivar.apsimx", package = "rapsimng.decide.cultivar"),
-            report = "HarvestReport",
             title = "Cultivar Suitability Report",
             author = "Author Names",
             date = Sys.Date(),
@@ -38,7 +36,8 @@ test_that("document builds and renders from example APSIM output", {
     lines <- rapsimng.decide.cultivar:::.document_lines(doc)
 
     testthat::expect_true(any(grepl('title: "Cultivar Suitability Report"', lines, fixed = TRUE)))
-    testthat::expect_true(any(grepl('rapsimng.decide::read_output(source$file, source$report)', lines, fixed = TRUE)))
+    testthat::expect_false(any(grepl('rapsimng.decide::read_output(source$file, source$report)', lines, fixed = TRUE)))
+    testthat::expect_true(any(grepl('rapsimng.decide::evaluate,', lines, fixed = TRUE)))
     testthat::expect_true(any(
         grepl('Cultivar', lines, fixed = TRUE) &
             grepl('Average Yield', lines, fixed = TRUE)
