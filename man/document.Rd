@@ -4,14 +4,7 @@
 \alias{document}
 \title{Document cultivar suitability from APSIM NG outputs}
 \usage{
-document(
-  data,
-  context = list(),
-  criteria = list(),
-  options = list(),
-  file = NULL,
-  ...
-)
+document(data, context = list(), criteria = list(), options = list(), ...)
 }
 \arguments{
 \item{data}{data.frame/tibble of APSIM outputs.}
@@ -22,8 +15,6 @@ document(
 filtering thresholds.}
 
 \item{options}{list controlling output toggles and figure behaviour.}
-
-\item{file}{optional output path to save the generated QMD document.}
 
 \item{...}{additional values stored in report metadata for downstream use.}
 }

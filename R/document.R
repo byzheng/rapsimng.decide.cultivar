@@ -10,7 +10,6 @@
 #' @param criteria list controlling decision criteria, including optional risk and
 #'   filtering thresholds.
 #' @param options list controlling output toggles and figure behaviour.
-#' @param file optional output path to save the generated QMD document.
 #' @param ... additional values stored in report metadata for downstream use.
 #' @export
 document <- function(
@@ -18,7 +17,6 @@ document <- function(
 	context = list(),
 	criteria = list(),
 	options = list(),
-	file = NULL,
 	...
 ) {
 	report <- if (inherits(data, "rapsimng_decide_report")) {
@@ -34,11 +32,6 @@ document <- function(
 	}
 
 	doc <- .assemble_document(report)
-
-	if (!is.null(file)) {
-		.write_document_qmd(doc, file)
-	}
-
 	doc
 }
 
@@ -249,12 +242,6 @@ document <- function(
 			c(section$body, "")
 		}), use.names = FALSE)
 	)
-}
-
-.write_document_qmd <- function(document, file) {
-	lines <- .document_lines(document)
-	writeLines(lines, con = file, useBytes = TRUE)
-	invisible(file)
 }
 
 .assemble_document <- function(report) {
