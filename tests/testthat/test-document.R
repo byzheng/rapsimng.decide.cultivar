@@ -44,8 +44,12 @@ test_that("document builds and renders from example APSIM output", {
     ))
     testthat::expect_false(any(grepl('knitr::kable(yield_summary_table)', lines, fixed = TRUE)))
 
-    qmd_path <- file.path(tempdir(), "cultivar-report.qmd")
-    html_path <- file.path(tempdir(), "cultivar-report.html")
+    render_dir <- file.path(tempdir(), "cultivar-report-test")
+    dir.create(render_dir, recursive = TRUE, showWarnings = FALSE)
+    on.exit(unlink(render_dir, recursive = TRUE, force = TRUE), add = TRUE)
+
+    qmd_path <- file.path(render_dir, "cultivar-report.qmd")
+    html_path <- file.path(render_dir, "cultivar-report.html")
     writeLines(lines, qmd_path, useBytes = TRUE)
 
     quarto::quarto_render(
