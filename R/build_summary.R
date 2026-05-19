@@ -73,6 +73,80 @@
     )
 }
 
+.yield_summary_table_columns <- function() {
+	c("yield_mean", "yield_sd", "yield_cv", "yield_risk")
+}
+
+.yield_summary_group_column <- function(metrics) {
+	names(metrics$value)[[1]]
+}
+
+.yield_summary_column_labels <- function(metrics, columns) {
+	defs <- metrics$metric_def |>
+		dplyr::filter(.data$name %in% columns)
+
+	labels <- vapply(columns, function(column_name) {
+		row <- defs[defs$name == column_name, , drop = FALSE]
+		if (nrow(row) == 0) {
+			return(column_name)
+		}
+
+		unit <- row$unit[[1]]
+		title <- row$title[[1]]
+		if (is.na(unit) || !nzchar(unit)) {
+			return(title)
+		}
+
+		paste0(title, " (", unit, ")")
+	}, character(1))
+
+	stats::setNames(labels, columns)
+}
+
+.yield_summary_table_data <- function(metrics, digits = 2) {
+	columns <- .yield_summary_table_columns()
+	group_column <- .yield_summary_group_column(metrics)
+	labels <- .yield_summary_column_labels(metrics, columns)
+
+	table_data <- metrics$value |>
+		dplyr::arrange(dplyr::desc(.data$yield_mean)) |>
+		dplyr::select(dplyr::all_of(c(group_column, columns))) |>
+		dplyr::mutate(
+			dplyr::across(dplyr::all_of(columns), ~ round(.x, digits))
+		)
+
+	colnames(table_data) <- c("Cultivar", unname(labels[columns]))
+	table_data
+}
+
+.render_yield_summary_table_markdown <- function(metrics) {
+	table_data <- .yield_summary_table_data(metrics)
+	as.character(knitr::kable(table_data, format = "pipe"))
+}
+
+.render_yield_summary_metric_notes <- function(metrics) {
+	columns <- .yield_summary_table_columns()
+	defs <- metrics$metric_def |>
+		dplyr::filter(.data$name %in% columns)
+
+	vapply(columns, function(column_name) {
+		row <- defs[defs$name == column_name, , drop = FALSE]
+		if (nrow(row) == 0) {
+			return(paste0("- ", column_name))
+		}
+
+		unit <- row$unit[[1]]
+		title <- row$title[[1]]
+		label <- if (is.na(unit) || !nzchar(unit)) {
+			title
+		} else {
+			paste0(title, " (", unit, ")")
+		}
+
+		paste0("- ", label, ": ", row$description[[1]])
+	}, character(1))
+}
+
 .document_section_summary <- function(section, meta = NULL) {
 	yield_summary <- .document_yield_summary(section, meta)
 
@@ -94,25 +168,19 @@
 
 .document_yield_summary <- function(section, meta = NULL) {
 	metrics <- section$metrics$yield_summary
-	summary_data_lines <- if (.document_uses_replay(meta)) {
+	plot_data_lines <- if (.document_uses_replay(meta)) {
 		c(
 			"summary_section <- get_section(\"summary\")",
-			"yield_summary_data <- summary_section$metrics$yield_summary$value"
+			"yield_summary_metrics <- summary_section$metrics$yield_summary",
+			"yield_summary_data <- yield_summary_metrics$value"
 		)
 	} else {
 		c(
-			"yield_summary_data <-",
-			utils::capture.output(dput(metrics$value))
+			"yield_summary_metrics <-",
+			utils::capture.output(dput(metrics)),
+			"yield_summary_data <- yield_summary_metrics$value"
 		)
 	}
-
-	table_columns <- c(
-		"Cultivar",
-		"yield_mean",
-		"yield_sd",
-		"yield_cv",
-		"yield_risk"
-	)
 
 	list(
 		name = "yield_summary",
@@ -122,28 +190,19 @@
 			"",
 			"Summary statistics of yield performance across cultivars.",
 			"",
-			"```{r}",
-			summary_data_lines,
-			"yield_summary_table <- yield_summary_data |>",
-			"    dplyr::arrange(dplyr::desc(yield_mean)) |>",
-			paste0(
-				"    dplyr::select(",
-				paste(table_columns, collapse = ", "),
-				") |>",
-				collapse = ""
-			),
-			"    dplyr::mutate(",
-			"        dplyr::across(c(yield_mean, yield_sd, yield_cv, yield_risk), ~ round(.x, 2))",
-			"    )",
-			"knitr::kable(yield_summary_table)",
-			"```",
+			.render_yield_summary_table_markdown(metrics),
+			"",
+			.render_yield_summary_metric_notes(metrics),
 			"",
 			"Yield distribution across cultivars shown using quantile-based boxplots.",
 			"",
 			"```{r}",
+			plot_data_lines,
+			"cultivar_column <- names(yield_summary_data)[[1]]",
 			"yield_summary_plot_data <- yield_summary_data |>",
+			"    dplyr::rename(cultivar = dplyr::all_of(cultivar_column)) |>",
 			"    dplyr::arrange(dplyr::desc(yield_mean)) |>",
-			"    dplyr::mutate(Cultivar = forcats::fct_reorder(Cultivar, yield_mean, .desc = TRUE))",
+			"    dplyr::mutate(cultivar = forcats::fct_reorder(cultivar, yield_mean, .desc = TRUE))",
 			"ggplot2::ggplot(",
 			"    yield_summary_plot_data,",
 			"    ggplot2::aes(",
