@@ -107,7 +107,7 @@
 	}
 
 	table_columns <- c(
-		"cultivar",
+		"Cultivar",
 		"yield_mean",
 		"yield_sd",
 		"yield_cv",
@@ -143,11 +143,11 @@
 			"```{r}",
 			"yield_summary_plot_data <- yield_summary_data |>",
 			"    dplyr::arrange(dplyr::desc(yield_mean)) |>",
-			"    dplyr::mutate(cultivar = forcats::fct_reorder(cultivar, yield_mean, .desc = TRUE))",
+			"    dplyr::mutate(Cultivar = forcats::fct_reorder(Cultivar, yield_mean, .desc = TRUE))",
 			"ggplot2::ggplot(",
 			"    yield_summary_plot_data,",
 			"    ggplot2::aes(",
-			"        x = cultivar,",
+			"        x = Cultivar,",
 			"        ymin = yield_q5,",
 			"        lower = yield_q25,",
 			"        middle = yield_median,",

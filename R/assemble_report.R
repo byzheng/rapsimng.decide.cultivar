@@ -5,10 +5,28 @@
     )
 }
 
+.resolve_report_source <- function(state) {
+    source <- state$extras$source
+
+    if (!is.null(source)) {
+        return(source)
+    }
+
+    context_meta <- state$context$meta
+    if (is.null(context_meta$source) || is.null(context_meta$report)) {
+        return(NULL)
+    }
+
+    list(
+        file = context_meta$source,
+        report = context_meta$report
+    )
+}
+
 .build_report_meta <- function(state, registry) {
     list(
         data = state$data,
-        source = state$extras$source,
+        source = .resolve_report_source(state),
         context = state$context,
         criteria = state$criteria,
         options = state$options,

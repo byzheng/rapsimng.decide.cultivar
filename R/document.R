@@ -91,12 +91,22 @@ document <- function(
 		source <- meta$extras$source
 	}
 
+	if (is.null(source)) {
+		context_meta <- meta$context$meta
+		if (!is.null(context_meta$source) && !is.null(context_meta$report)) {
+			source <- list(
+				file = context_meta$source,
+				report = context_meta$report
+			)
+		}
+	}
+
 	source
 }
 
 .document_uses_replay <- function(meta) {
 	source <- .document_source(meta)
-	!is.null(source) && !is.null(source$file) && !is.null(source$table)
+	!is.null(source) && !is.null(source$file) && !is.null(source$report)
 }
 
 .document_object_lines <- function(name, value) {
@@ -175,8 +185,8 @@ document <- function(
 		criteria_lines,
 		options_lines,
 		extras_lines,
-		paste0("source <- list(file = ", .document_yaml_string(source$file), ", table = ", .document_yaml_string(source$table), ")"),
-		paste0("data <- ", reader, "(source$file, source$table)"),
+		paste0("source <- list(file = ", .document_yaml_string(source$file), ", report = ", .document_yaml_string(source$report), ")"),
+		paste0("data <- ", reader, "(source$file, source$report)"),
 		"state <- .initialise_state(data, context, criteria, options, extras)",
 		"section_cache <- new.env(parent = emptyenv())",
 		"get_section <- function(name) {",
