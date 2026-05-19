@@ -2,5 +2,4 @@
 
 export(document)
 export(evaluate)
-export(initialise_state)
 importFrom(rlang,.data)
