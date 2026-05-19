@@ -216,7 +216,7 @@
 			") +",
 			"    ggplot2::geom_boxplot(stat = \"identity\") +",
 			"    ggplot2::coord_flip() +",
-			"    ggplot2::labs(x = \"Yield (t/ha)\", y = \"Cultivar\")",
+			"    ggplot2::labs(y = \"Yield (t/ha)\", x = \"Cultivar\")",
 			"```"
 		)
 	)
