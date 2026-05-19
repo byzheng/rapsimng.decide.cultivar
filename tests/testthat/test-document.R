@@ -7,14 +7,14 @@ test_that("document builds and renders from example APSIM output", {
     testthat::skip_if(!nzchar(quarto_bin), "Quarto CLI is not available")
 
     data <- rapsimng.decide::read_output(
-        here::here("inst/example/cultivar.apsimx"),
+        system.file("example/cultivar.apsimx", package = "rapsimng.decide.cultivar"),
         "HarvestReport"
     ) |>
         dplyr::filter(Year > 1995)
 
     context <- list(
         meta = list(
-            source = here::here("inst/example/cultivar.apsimx"),
+            source = system.file("example/cultivar.apsimx", package = "rapsimng.decide.cultivar"),
             report = "HarvestReport",
             title = "Cultivar Suitability Report",
             author = "Author Names",
