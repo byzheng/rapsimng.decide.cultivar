@@ -223,9 +223,9 @@ document <- function(
 			.document_yaml_lines(meta),
 			setup_chunk,
 			"",
-			"## Evaluation Notes",
+			# "## Evaluation Notes",
 			"",
-			paste0("- ", notes),
+			# paste0("- ", notes),
 			""
 		)
 	)
