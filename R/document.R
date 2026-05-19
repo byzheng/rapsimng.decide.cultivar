@@ -10,6 +10,7 @@
 #' @param criteria list controlling decision criteria, including optional risk and
 #'   filtering thresholds.
 #' @param options list controlling output toggles and figure behaviour.
+#' @param file optional output path to save the generated QMD document.
 #' @param ... additional values stored in report metadata for downstream use.
 #' @export
 document <- function(
@@ -17,6 +18,7 @@ document <- function(
 	context = list(),
 	criteria = list(),
 	options = list(),
+	file = NULL,
 	...
 ) {
 	report <- if (inherits(data, "rapsimng_decide_report")) {
@@ -31,14 +33,20 @@ document <- function(
 		)
 	}
 
-	.assemble_document(report)
+	doc <- .assemble_document(report)
+
+	if (!is.null(file)) {
+		.write_document_qmd(doc, file)
+	}
+
+	doc
 }
 
 .document_title <- function(meta) {
 	title <- meta$extras$title
 
 	if (is.null(title) || !nzchar(title)) {
-		title <- meta$context$title
+		title <- meta$context$meta$title
 	}
 
 	if (is.null(title) || !nzchar(title)) {
@@ -48,6 +56,49 @@ document <- function(
 	title
 }
 
+.document_author <- function(meta) {
+	author <- meta$extras$author
+
+	if (is.null(author) || !nzchar(author)) {
+		author <- meta$context$meta$author
+	}
+
+	author
+}
+
+.document_date <- function(meta) {
+	date <- meta$extras$date
+
+	if (is.null(date)) {
+		date <- meta$context$meta$date
+	}
+
+	if (inherits(date, "Date")) {
+		date <- as.character(date)
+	}
+
+	date
+}
+
+.document_yaml_string <- function(value) {
+	paste0('"', gsub('"', '\\\\"', as.character(value), fixed = TRUE), '"')
+}
+
+.document_source <- function(meta) {
+	source <- meta$source
+
+	if (is.null(source)) {
+		source <- meta$extras$source
+	}
+
+	source
+}
+
+.document_uses_replay <- function(meta) {
+	source <- .document_source(meta)
+	!is.null(source) && !is.null(source$file) && !is.null(source$table)
+}
+
 .document_object_lines <- function(name, value) {
 	c(
 		paste0(name, " <-"),
@@ -55,13 +106,98 @@ document <- function(
 	)
 }
 
-.document_prefix <- function(meta) {
+.document_yaml_lines <- function(meta) {
+	lines <- c(
+		"---",
+		paste0("title: ", .document_yaml_string(.document_title(meta)))
+	)
+
+	author <- .document_author(meta)
+	if (!is.null(author) && nzchar(author)) {
+		lines <- c(lines, paste0("author: ", .document_yaml_string(author)))
+	}
+
+	date <- .document_date(meta)
+	if (!is.null(date) && nzchar(date)) {
+		lines <- c(lines, paste0("date: ", .document_yaml_string(date)))
+	}
+
+	c(lines, "format: html", "---", "")
+}
+
+.document_setup_chunk_snapshot <- function(meta) {
 	data_lines <- .document_object_lines("data", meta$data)
 	context_lines <- .document_object_lines("context", meta$context)
 	criteria_lines <- .document_object_lines("criteria", meta$criteria)
 	options_lines <- .document_object_lines("options", meta$options)
 	extras_lines <- .document_object_lines("extras", meta$extras)
+
+	c(
+		"```{r}",
+		"#| label: setup-data",
+		"#| include: false",
+		data_lines,
+		context_lines,
+		criteria_lines,
+		options_lines,
+		extras_lines,
+		"state <- .initialise_state(data, context, criteria, options, extras)",
+		"section_cache <- new.env(parent = emptyenv())",
+		"get_section <- function(name) {",
+		"    if (!exists(name, envir = section_cache, inherits = FALSE)) {",
+		"        spec <- .registry_sections()[[name]]",
+		"        value <- spec$evaluate(state, spec)",
+		"        assign(name, value, envir = section_cache)",
+		"    }",
+		"    get(name, envir = section_cache, inherits = FALSE)",
+		"}",
+		"```"
+	)
+}
+
+.document_setup_chunk_replay <- function(meta) {
+	source <- .document_source(meta)
+	context_lines <- .document_object_lines("context", meta$context)
+	criteria_lines <- .document_object_lines("criteria", meta$criteria)
+	options_lines <- .document_object_lines("options", meta$options)
+	extras_lines <- .document_object_lines("extras", meta$extras)
+	reader <- source$reader
+
+	if (is.null(reader) || !nzchar(reader)) {
+		reader <- "rapsimng.decide::read_output"
+	}
+
+	c(
+		"```{r}",
+		"#| label: setup-data",
+		"#| include: false",
+		context_lines,
+		criteria_lines,
+		options_lines,
+		extras_lines,
+		paste0("source <- list(file = ", .document_yaml_string(source$file), ", table = ", .document_yaml_string(source$table), ")"),
+		paste0("data <- ", reader, "(source$file, source$table)"),
+		"state <- .initialise_state(data, context, criteria, options, extras)",
+		"section_cache <- new.env(parent = emptyenv())",
+		"get_section <- function(name) {",
+		"    if (!exists(name, envir = section_cache, inherits = FALSE)) {",
+		"        spec <- .registry_sections()[[name]]",
+		"        value <- spec$evaluate(state, spec)",
+		"        assign(name, value, envir = section_cache)",
+		"    }",
+		"    get(name, envir = section_cache, inherits = FALSE)",
+		"}",
+		"```"
+	)
+}
+
+.document_prefix <- function(meta) {
 	notes <- meta$notes
+	setup_chunk <- if (.document_uses_replay(meta)) {
+		.document_setup_chunk_replay(meta)
+	} else {
+		.document_setup_chunk_snapshot(meta)
+	}
 
 	if (length(notes) == 0) {
 		notes <- "No evaluation notes were recorded."
@@ -71,20 +207,8 @@ document <- function(
 		name = "prefix",
 		title = .document_title(meta),
 		body = c(
-			"---",
-			paste0("title: \"", .document_title(meta), "\""),
-			"format: html",
-			"---",
-			"",
-			"```{r}",
-			"#| label: setup-data",
-			"#| include: false",
-			data_lines,
-			context_lines,
-			criteria_lines,
-			options_lines,
-			extras_lines,
-			"```",
+			.document_yaml_lines(meta),
+			setup_chunk,
 			"",
 			"## Evaluation Notes",
 			"",
@@ -92,6 +216,25 @@ document <- function(
 			""
 		)
 	)
+}
+
+.document_lines <- function(document) {
+	c(
+		document$prefix$body,
+		unlist(lapply(document$sections, function(section) {
+			if (is.null(section)) {
+				return(NULL)
+			}
+
+			c(section$body, "")
+		}), use.names = FALSE)
+	)
+}
+
+.write_document_qmd <- function(document, file) {
+	lines <- .document_lines(document)
+	writeLines(lines, con = file, useBytes = TRUE)
+	invisible(file)
 }
 
 .assemble_document <- function(report) {
@@ -110,30 +253,22 @@ document <- function(
 	prefix <- .document_prefix(report$meta)
 
 	documents <- lapply(section_order, function(section_name) {
-			section_spec <- registry[[section_name]]
-			section <- sections[[section_name]]
+		section_spec <- registry[[section_name]]
+		section <- sections[[section_name]]
 
-			if (is.null(section_spec) || is.null(section)) {
-				return(NULL)
-			}
+		if (is.null(section_spec) || is.null(section)) {
+			return(NULL)
+		}
 
-			documented_section <- section_spec$document(section, report$meta)
-			documented_section
-		})
+		section_spec$document(section, report$meta)
+	})
 
-	document_lines <- unlist(
-		c(
-			list(prefix$body),
-			lapply(documents, function(section) {
-				if (is.null(section)) {
-					return(NULL)
-				}
-
-				c(section$body, "")
-			})
-		),
-		use.names = FALSE
+	document <- list(
+		meta = report$meta,
+		prefix = prefix,
+		sections = documents,
+		section_order = section_order
 	)
 
-	structure(document_lines, class = c("rapsimng_decide_document", "character"))
+	structure(document, class = "rapsimng_decide_document")
 }

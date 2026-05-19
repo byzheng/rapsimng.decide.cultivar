@@ -74,7 +74,7 @@
 }
 
 .document_section_summary <- function(section, meta = NULL) {
-	yield_summary <- .document_yield_summary(section$metrics$yield_summary)
+	yield_summary <- .document_yield_summary(section, meta)
 
 	list(
 		name = section$name,
@@ -92,8 +92,19 @@
 }
 
 
-.document_yield_summary <- function(metrics) {
-	summary_data_lines <- utils::capture.output(dput(metrics$value))
+.document_yield_summary <- function(section, meta = NULL) {
+	metrics <- section$metrics$yield_summary
+	summary_data_lines <- if (.document_uses_replay(meta)) {
+		c(
+			"summary_section <- get_section(\"summary\")",
+			"yield_summary_data <- summary_section$metrics$yield_summary$value"
+		)
+	} else {
+		c(
+			"yield_summary_data <-",
+			utils::capture.output(dput(metrics$value))
+		)
+	}
 
 	table_columns <- c(
 		"cultivar",
@@ -112,7 +123,6 @@
 			"Summary statistics of yield performance across cultivars.",
 			"",
 			"```{r}",
-			"yield_summary_data <-",
 			summary_data_lines,
 			"yield_summary_table <- yield_summary_data |>",
 			"    dplyr::arrange(dplyr::desc(yield_mean)) |>",

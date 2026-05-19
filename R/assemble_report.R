@@ -8,6 +8,7 @@
 .build_report_meta <- function(state, registry) {
     list(
         data = state$data,
+        source = state$extras$source,
         context = state$context,
         criteria = state$criteria,
         options = state$options,
