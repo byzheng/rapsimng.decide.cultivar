@@ -12,7 +12,8 @@ Imports:
     dplyr,
     tibble,
     rlang,
-    stats
+    stats,
+    knitr
 Config/testthat/edition: 3
 URL: https://cultivar.decide.rapsimng.bangyou.me/,
     https://github.com/byzheng/rapsimng.decide.cultivar
