@@ -35,7 +35,8 @@ evaluate <- function(
 		data = data,
 		context = context,
 		criteria = criteria,
-		options = options
+		options = options,
+		extras = list(...)
 	)
 	.assemble_report(state)
 }

@@ -19,5 +19,48 @@ document <- function(
 	options = list(),
 	...
 ) {
-	report <- .assemble_report(state)
+	report <- if (inherits(data, "rapsimng_decide_report")) {
+		data
+	} else {
+		evaluate(
+			data = data,
+			context = context,
+			criteria = criteria,
+			options = options,
+			...
+		)
+	}
+
+	.assemble_document(report)
+}
+
+.assemble_document <- function(report) {
+	registry <- .registry_sections()
+	sections <- report$sections
+
+	if (is.null(sections)) {
+		sections <- report[setdiff(names(report), "meta")]
+	}
+
+	section_order <- report$meta$section_order
+	if (is.null(section_order)) {
+		section_order <- names(sections)
+	}
+
+	document_lines <- unlist(
+		lapply(section_order, function(section_name) {
+			section_spec <- registry[[section_name]]
+			section <- sections[[section_name]]
+
+			if (is.null(section_spec) || is.null(section)) {
+				return(NULL)
+			}
+
+			documented_section <- section_spec$document(section, report$meta)
+			c(documented_section$body, "")
+		}),
+		use.names = FALSE
+	)
+
+	structure(document_lines, class = c("rapsimng_decide_document", "character"))
 }

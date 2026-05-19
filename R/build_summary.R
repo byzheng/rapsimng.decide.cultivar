@@ -1,10 +1,22 @@
 
-.registry_section_summary <- function(state) {
+.section_summary_spec <- function() {
 	list(
 		name = "summary",
 		title = "Summary",
 		description = "Summary of the cultivar suitability evaluation, including key metrics, tables, and figures.",
-		metrics = .build_metric_summary(state)
+		evaluate = .evaluate_section_summary,
+		document = .document_section_summary
+	)
+}
+
+.evaluate_section_summary <- function(state, spec = .section_summary_spec()) {
+	list(
+		name = spec$name,
+		title = spec$title,
+		description = spec$description,
+		metrics = list(
+			yield_summary = .build_metric_summary(state)
+		)
 	)
 }
 
@@ -59,6 +71,24 @@
         metric_def = metric_def,
         description = "The summary statistics of yield across all cultivars and years impacted by frost and heat stresses."
     )
+}
+
+.document_section_summary <- function(section, meta = NULL) {
+	yield_summary <- .document_yield_summary(section$metrics$yield_summary)
+
+	list(
+		name = section$name,
+		title = section$title,
+		body = c(
+			paste0("## ", section$title),
+			"",
+			section$description,
+			"",
+			paste0("### ", yield_summary$title),
+			"",
+			yield_summary$body
+		)
+	)
 }
 
 
