@@ -1,4 +1,12 @@
-.initialise_state <- function(data, context, criteria, options, extras = list()) {
+#' Initialise evaluation state
+#'
+#' @param data data.frame/tibble of APSIM outputs.
+#' @param context list controlling variable mapping and reporting context.
+#' @param criteria list controlling decision criteria.
+#' @param options list controlling output toggles and figure behaviour.
+#' @param extras additional metadata stored in the state object.
+#' @export
+initialise_state <- function(data, context, criteria, options, extras = list()) {
   vars <- context$vars
   # frost_column <- .resolve_optional_column(data, vars$frost_col)
   # heat_column <- .resolve_optional_column(data, vars$heat_col)

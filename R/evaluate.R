@@ -31,7 +31,7 @@ evaluate <- function(
 		options = options
 	)
 
-	state <- .initialise_state(
+	state <- initialise_state(
 		data = data,
 		context = context,
 		criteria = criteria,
