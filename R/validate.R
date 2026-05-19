@@ -12,6 +12,7 @@
         vars$cultivar_col,
         vars$year_col,
         vars$sowing_col,
+        vars$flower_col,
         vars$yield_col
     )
     missing_columns <- setdiff(required_columns, names(data))

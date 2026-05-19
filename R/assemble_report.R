@@ -2,7 +2,8 @@
 .registry_sections <- function() {
     list(
 		summary = .section_summary_spec(),
-		yield = .section_yield_spec()
+        yield = .section_yield_spec(),
+        flower = .section_flower_spec()
     )
 }
 

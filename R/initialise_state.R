@@ -40,6 +40,7 @@
       cultivar = vars$cultivar_col,
       year = vars$year_col,
       sowing = vars$sowing_col,
+      flower = vars$flower_col,
       yield = vars$yield_col,
       frost = NULL,
       heat = NULL

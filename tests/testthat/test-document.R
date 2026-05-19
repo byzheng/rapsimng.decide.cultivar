@@ -25,6 +25,7 @@ test_that("document builds and renders from example APSIM output", {
             cultivar_col = "Cultivar",
             year_col = "Year",
             sowing_col = "SowingDate",
+            flower_col = "Wheat.Phenology.FloweringDAS",
             yield_col = "Wheat.FrostHeatDamageFunctions.FrostHeatYield"
         )
     )
@@ -41,6 +42,10 @@ test_that("document builds and renders from example APSIM output", {
     testthat::expect_true(any(
         grepl('Cultivar', lines, fixed = TRUE) &
             grepl('Average Yield', lines, fixed = TRUE)
+    ))
+    testthat::expect_true(any(
+        grepl('Cultivar', lines, fixed = TRUE) &
+            grepl('Average Flowering Time', lines, fixed = TRUE)
     ))
     testthat::expect_false(any(grepl('knitr::kable(yield_summary_table)', lines, fixed = TRUE)))
 
