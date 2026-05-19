@@ -1,4 +1,4 @@
-#' Evaluate cultivar suitability from APSIM NG outputs
+#' Document cultivar suitability from APSIM NG outputs
 #'
 #' @description
 #' Analyse APSIM NG outputs already loaded into R to assess cultivar suitability
@@ -12,30 +12,12 @@
 #' @param options list controlling output toggles and figure behaviour.
 #' @param ... additional values stored in report metadata for downstream use.
 #' @export
-evaluate_cultivar_suitability <- function(
+document <- function(
 	data,
 	context = list(),
 	criteria = list(),
 	options = list(),
 	...
 ) {
-
-	# context <- .standardise_context(context)
-	# criteria <- .standardise_criteria(criteria)
-	# options <- .standardise_options(options)
-
-	.validate_inputs(
-		data = data,
-		context = context,
-		criteria = criteria,
-		options = options
-	)
-
-	state <- .initialise_state(
-		data = data,
-		context = context,
-		criteria = criteria,
-		options = options
-	)
-	.assemble_report(state)
+	report <- .assemble_report(state)
 }

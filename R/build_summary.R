@@ -30,7 +30,6 @@
         )
 }
 
-
 .build_metric_summary <- function(state) {
 
     values <- .compute_yield_summary(state)
@@ -61,3 +60,66 @@
         description = "The summary statistics of yield across all cultivars and years impacted by frost and heat stresses."
     )
 }
+
+
+.document_yield_summary <- function(metrics) {
+	summary_data_lines <- utils::capture.output(dput(metrics$value))
+
+	table_columns <- c(
+		"cultivar",
+		"yield_mean",
+		"yield_sd",
+		"yield_cv",
+		"yield_risk"
+	)
+
+	list(
+		name = "yield_summary",
+		title = "Yield Summary",
+		body = c(
+			"<!-- TEXT_yield_summary -->",
+			"",
+			"Summary statistics of yield performance across cultivars.",
+			"",
+			"```{r}",
+			"yield_summary_data <-",
+			summary_data_lines,
+			"yield_summary_table <- yield_summary_data |>",
+			"    dplyr::arrange(dplyr::desc(yield_mean)) |>",
+			paste0(
+				"    dplyr::select(",
+				paste(table_columns, collapse = ", "),
+				") |>",
+				collapse = ""
+			),
+			"    dplyr::mutate(",
+			"        dplyr::across(c(yield_mean, yield_sd, yield_cv, yield_risk), ~ round(.x, 2))",
+			"    )",
+			"knitr::kable(yield_summary_table)",
+			"```",
+			"",
+			"Yield distribution across cultivars shown using quantile-based boxplots.",
+			"",
+			"```{r}",
+			"yield_summary_plot_data <- yield_summary_data |>",
+			"    dplyr::arrange(dplyr::desc(yield_mean)) |>",
+			"    dplyr::mutate(cultivar = forcats::fct_reorder(cultivar, yield_mean, .desc = TRUE))",
+			"ggplot2::ggplot(",
+			"    yield_summary_plot_data,",
+			"    ggplot2::aes(",
+			"        x = cultivar,",
+			"        ymin = yield_q5,",
+			"        lower = yield_q25,",
+			"        middle = yield_median,",
+			"        upper = yield_q75,",
+			"        ymax = yield_q95",
+			"    )",
+			") +",
+			"    ggplot2::geom_boxplot(stat = \"identity\") +",
+			"    ggplot2::coord_flip() +",
+			"    ggplot2::labs(x = \"Yield (t/ha)\", y = \"Cultivar\")",
+			"```"
+		)
+	)
+}
+
