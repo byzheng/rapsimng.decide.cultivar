@@ -124,6 +124,10 @@
 	as.character(knitr::kable(table_data, format = "pipe"))
 }
 
+.render_yield_summary_table_caption <- function() {
+	": Summary statistics of yield performance across cultivars. {#tbl-yield-summary}"
+}
+
 .render_yield_summary_metric_notes <- function(metrics) {
 	columns <- .yield_summary_table_columns()
 	defs <- metrics$metric_def |>
@@ -196,9 +200,9 @@
 			"- Style: concise, farming decision oriented, decision-focused",
 			"-->",
 			"",
-			"Summary statistics of yield performance across cultivars.",
-			"",
 			.render_yield_summary_table_markdown(metrics),
+			"",
+			.render_yield_summary_table_caption(),
 			"",
 			.render_yield_summary_metric_notes(metrics),
 			"",
