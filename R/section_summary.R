@@ -3,7 +3,7 @@
 	list(
 		name = "summary",
 		title = "Summary",
-		description = "Summary of the cultivar suitability evaluation, including key metrics, tables, and figures.",
+		description = "Summary of the cultivar suitability evaluation.",
 		evaluate = .evaluate_section_summary,
 		document = .document_section_summary
 	)
