@@ -34,6 +34,66 @@ document <- function(
 	.assemble_document(report)
 }
 
+.document_title <- function(meta) {
+	title <- meta$extras$title
+
+	if (is.null(title) || !nzchar(title)) {
+		title <- meta$context$title
+	}
+
+	if (is.null(title) || !nzchar(title)) {
+		title <- "Cultivar Suitability Report"
+	}
+
+	title
+}
+
+.document_object_lines <- function(name, value) {
+	c(
+		paste0(name, " <-"),
+		utils::capture.output(dput(value))
+	)
+}
+
+.document_prefix <- function(meta) {
+	data_lines <- .document_object_lines("data", meta$data)
+	context_lines <- .document_object_lines("context", meta$context)
+	criteria_lines <- .document_object_lines("criteria", meta$criteria)
+	options_lines <- .document_object_lines("options", meta$options)
+	extras_lines <- .document_object_lines("extras", meta$extras)
+	notes <- meta$notes
+
+	if (length(notes) == 0) {
+		notes <- "No evaluation notes were recorded."
+	}
+
+	list(
+		name = "prefix",
+		title = .document_title(meta),
+		body = c(
+			"---",
+			paste0("title: \"", .document_title(meta), "\""),
+			"format: html",
+			"---",
+			"",
+			"```{r}",
+			"#| label: setup-data",
+			"#| include: false",
+			data_lines,
+			context_lines,
+			criteria_lines,
+			options_lines,
+			extras_lines,
+			"```",
+			"",
+			"## Evaluation Notes",
+			"",
+			paste0("- ", notes),
+			""
+		)
+	)
+}
+
 .assemble_document <- function(report) {
 	registry <- .registry_sections()
 	sections <- report$sections
@@ -47,8 +107,9 @@ document <- function(
 		section_order <- names(sections)
 	}
 
-	document_lines <- unlist(
-		lapply(section_order, function(section_name) {
+	prefix <- .document_prefix(report$meta)
+
+	documents <- lapply(section_order, function(section_name) {
 			section_spec <- registry[[section_name]]
 			section <- sections[[section_name]]
 
@@ -57,8 +118,20 @@ document <- function(
 			}
 
 			documented_section <- section_spec$document(section, report$meta)
-			c(documented_section$body, "")
-		}),
+			documented_section
+		})
+
+	document_lines <- unlist(
+		c(
+			list(prefix$body),
+			lapply(documents, function(section) {
+				if (is.null(section)) {
+					return(NULL)
+				}
+
+				c(section$body, "")
+			})
+		),
 		use.names = FALSE
 	)
 
