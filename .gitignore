@@ -6,7 +6,6 @@
 test.R
 Meta
 docs
-inst
 dev
 cran-comments.md
 CRAN-RELEASE
@@ -14,3 +13,6 @@ CRAN-SUBMISSION
 .httr-oauth
 .DS_Store
 .quarto
+*.db-shm
+*.db-wal
+*.bak

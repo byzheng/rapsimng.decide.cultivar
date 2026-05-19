@@ -15,7 +15,7 @@
 		title = spec$title,
 		description = spec$description,
 		metrics = list(
-			yield_summary = .build_metric_summary(state)
+			yield_summary = .build_section_summary_metrics(state)
 		)
 	)
 }
@@ -42,7 +42,7 @@
         )
 }
 
-.build_metric_summary <- function(state) {
+.build_section_summary_metrics <- function(state) {
 
     values <- .compute_yield_summary(state)
 
@@ -229,4 +229,3 @@
 		)
 	)
 }
-
