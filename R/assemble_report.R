@@ -1,7 +1,7 @@
 
 .registry_sections <- function() {
     list(
-        summary = .section_summary_spec()
+		yield = .section_yield_spec()
     )
 }
 
@@ -49,6 +49,6 @@
     )
     report[names(sections)] <- sections
 
-    class(report) <- c("rapsimng_decide_report", class(report))
+    class(report) <- unique(c("rapsimng_decide_report", class(report)))
     report
 }

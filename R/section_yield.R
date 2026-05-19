@@ -1,21 +1,21 @@
 
-.section_summary_spec <- function() {
+.section_yield_spec <- function() {
 	list(
-		name = "summary",
-		title = "Summary",
-		description = "Summary of the cultivar suitability evaluation.",
-		evaluate = .evaluate_section_summary,
-		document = .document_section_summary
+		name = "yield",
+		title = "Yield",
+		description = "Yield summary of the cultivar suitability evaluation.",
+		evaluate = .evaluate_section_yield,
+		document = .document_section_yield
 	)
 }
 
-.evaluate_section_summary <- function(state, spec = .section_summary_spec()) {
+.evaluate_section_yield <- function(state, spec = .section_yield_spec()) {
 	list(
 		name = spec$name,
 		title = spec$title,
 		description = spec$description,
 		metrics = list(
-			yield_summary = .build_section_summary_metrics(state)
+			yield_summary = .build_section_yield_metrics(state)
 		)
 	)
 }
@@ -42,7 +42,7 @@
         )
 }
 
-.build_section_summary_metrics <- function(state) {
+.build_section_yield_metrics <- function(state) {
 
     values <- .compute_yield_summary(state)
 
@@ -66,11 +66,11 @@
     )
 
     list(
-        name = "yield_summary",
-        value = values,
-        metric_def = metric_def,
-        description = "The summary statistics of yield across all cultivars and years impacted by frost and heat stresses."
-    )
+		name = "yield_summary",
+		value = values,
+		metric_def = metric_def,
+		description = "The summary statistics of yield across all cultivars and years impacted by frost and heat stresses."
+	)
 }
 
 .yield_summary_table_columns <- function() {
@@ -147,7 +147,7 @@
 	}, character(1))
 }
 
-.document_section_summary <- function(section, meta = NULL) {
+.document_section_yield <- function(section, meta = NULL) {
 	yield_summary <- .document_yield_summary(section, meta)
 
 	list(
@@ -156,9 +156,9 @@
 		body = c(
 			paste0("## ", section$title),
 			"",
-			section$description,
+			# section$description,
 			"",
-			paste0("### ", yield_summary$title),
+			# paste0("### ", yield_summary$title),
 			"",
 			yield_summary$body
 		)
@@ -170,8 +170,8 @@
 	metrics <- section$metrics$yield_summary
 	plot_data_lines <- if (.document_uses_replay(meta)) {
 		c(
-			"summary_section <- get_section(\"summary\")",
-			"yield_summary_metrics <- summary_section$metrics$yield_summary",
+			"yield_section <- get_section(\"yield\")",
+			"yield_summary_metrics <- yield_section$metrics$yield_summary",
 			"yield_summary_data <- yield_summary_metrics$value"
 		)
 	} else {
@@ -205,6 +205,8 @@
 			"Yield distribution across cultivars shown using quantile-based boxplots.",
 			"",
 			"```{r}",
+			"#| label: fig-yield-summary-plot",
+			"#| fig-cap: 'Yield summary across cultivars'",
 			plot_data_lines,
 			"cultivar_column <- names(yield_summary_data)[[1]]",
 			"yield_summary_plot_data <- yield_summary_data |>",
