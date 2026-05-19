@@ -132,7 +132,17 @@ document <- function(
 		lines <- c(lines, paste0("date: ", .document_yaml_string(date)))
 	}
 
-	c(lines, "format: html", "---", "")
+	c(
+		lines,
+		"format: html",
+		"execute:",
+		"  echo: true",
+		"  eval: true",
+		"  message: false",
+		"  warning: false",
+		"---",
+		""
+	)
 }
 
 .document_setup_chunk_snapshot <- function(meta) {

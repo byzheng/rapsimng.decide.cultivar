@@ -147,7 +147,7 @@
 			"ggplot2::ggplot(",
 			"    yield_summary_plot_data,",
 			"    ggplot2::aes(",
-			"        x = Cultivar,",
+			"        x = cultivar,",
 			"        ymin = yield_q5,",
 			"        lower = yield_q25,",
 			"        middle = yield_median,",
