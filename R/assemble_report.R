@@ -3,7 +3,8 @@
     list(
 		summary = .section_summary_spec(),
         yield = .section_yield_spec(),
-        flower = .section_flower_spec()
+        flower = .section_flower_spec(),
+        stress = .section_stress_spec()
     )
 }
 

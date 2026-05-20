@@ -24,7 +24,11 @@ test_that("document builds and renders from example APSIM output", {
             year_col = "Year",
             sowing_col = "SowingDate",
             flower_col = "Wheat.Phenology.FloweringDAS",
-            yield_col = "Wheat.FrostHeatDamageFunctions.FrostHeatYield"
+            yield_col = "Wheat.FrostHeatDamageFunctions.FrostHeatYield",
+            frost_reduction_col = "Wheat.FrostHeatDamageFunctions.CumulativeFrostReductionRatio",
+            heat_reduction_col = "Wheat.FrostHeatDamageFunctions.CumulativeHeatReductionRatio",
+            frost_event_col = "Wheat.FrostHeatDamageFunctions.FrostEventNumber",
+            heat_event_col = "Wheat.FrostHeatDamageFunctions.HeatEventNumber"
         )
     )
 
@@ -45,6 +49,14 @@ test_that("document builds and renders from example APSIM output", {
     testthat::expect_true(any(
         grepl('Cultivar', lines, fixed = TRUE) &
             grepl('Average Flowering Time', lines, fixed = TRUE)
+    ))
+    testthat::expect_true(any(
+        grepl('Cultivar', lines, fixed = TRUE) &
+            grepl('Average Frost Reduction Ratio', lines, fixed = TRUE)
+    ))
+    testthat::expect_true(any(
+        grepl('Cultivar', lines, fixed = TRUE) &
+            grepl('Average Heat Reduction Ratio', lines, fixed = TRUE)
     ))
     testthat::expect_false(any(grepl('knitr::kable(yield_summary_table)', lines, fixed = TRUE)))
 

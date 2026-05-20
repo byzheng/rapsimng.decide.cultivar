@@ -42,8 +42,10 @@
       sowing = vars$sowing_col,
       flower = vars$flower_col,
       yield = vars$yield_col,
-      frost = NULL,
-      heat = NULL
+      frost_reduction = vars$frost_reduction_col,
+      heat_reduction = vars$heat_reduction_col,
+      frost_events = vars$frost_event_col,
+      heat_events = vars$heat_event_col
     ),
     notes = notes,
     cache = new.env(parent = emptyenv())
