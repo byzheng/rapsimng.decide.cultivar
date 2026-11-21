@@ -2,8 +2,8 @@ test_that("document builds and renders from example APSIM output", {
     testthat::skip_if_not_installed("here")
     testthat::skip_if_not_installed("quarto")
 
-    quarto_bin <- tryCatch(quarto::quarto_path(), error = function(...) "")
-    testthat::skip_if(!nzchar(quarto_bin), "Quarto CLI is not available")
+    quarto_bin <- quarto::quarto_path()
+    testthat::skip_if(is.null(quarto_bin) || !nzchar(quarto_bin), "Quarto CLI is not available")
 
     data <- rapsimng.decide.core::read_output(
         system.file("example/cultivar.apsimx", package = "rapsimng.decide.cultivar"),
@@ -70,7 +70,7 @@ test_that("document builds and renders from example APSIM output", {
     quarto::quarto_render(
         input = qmd_path,
         output_file = basename(html_path),
-        quiet = TRUE
+        quiet = FALSE
     )
 
     testthat::expect_true(file.exists(qmd_path))
