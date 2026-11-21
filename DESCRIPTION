@@ -10,6 +10,7 @@ Roxygen: list(markdown = TRUE)
 Depends: R (>= 4.1.0)
 Imports:
     dplyr,
+    ggplot2,
     tibble,
     rlang,
     stats,
