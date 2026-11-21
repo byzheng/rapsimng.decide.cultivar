@@ -2,4 +2,5 @@
 
 export(document)
 export(evaluate)
+importFrom(forcats,fct_reorder)
 importFrom(rlang,.data)
