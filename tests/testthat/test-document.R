@@ -40,7 +40,7 @@ test_that("document builds and renders from example APSIM output", {
 
     testthat::expect_true(any(grepl('title: "Cultivar Suitability Report"', lines, fixed = TRUE)))
     testthat::expect_false(any(grepl('rapsimng.decide.core::read_output(source$file, source$report)', lines, fixed = TRUE)))
-    testthat::expect_false(any(grepl('rapsimng.decide.cultivar::evaluate,', lines, fixed = TRUE)))
+    testthat::expect_true(any(grepl('rapsimng.decide.cultivar::evaluate,', lines, fixed = TRUE)))
     testthat::expect_true(any(
         grepl('Cultivar', lines, fixed = TRUE) &
             grepl('Average Yield', lines, fixed = TRUE)
